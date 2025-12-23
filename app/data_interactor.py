@@ -36,36 +36,51 @@ def get_all_contacts():
     return contacts
 
 
-def update_contact(id, update):
+def update_contact(contact_id, first_name=None, last_name=None, phone_number=None):
     conn = get_connection()
     cursor = conn.cursor()
 
-    fields = ", ".join([f"{key} = %s" for key in update.keys()])
-    values = list(update.values())
-    values.append(id)
+    fields = []
+    values = []
 
-    query = f"UPDATE contacts SET {fields} WHERE id = %s"
-    cursor.execute(query, values)
+    if first_name is not None:
+        fields.append("first_name = %s")
+        values.append(first_name)
 
+    if last_name is not None:
+        fields.append("last_name = %s")
+        values.append(last_name)
+
+    if phone_number is not None:
+        fields.append("phone_number = %s")
+        values.append(phone_number)
+
+    if not fields:
+        return False
+
+    query = f"UPDATE contacts SET {', '.join(fields)} WHERE id = %s"
+    values.append(contact_id)
+
+    cursor.execute(query, tuple(values))
     conn.commit()
+
+    updated = cursor.rowcount
 
     cursor.close()
     conn.close()
 
-    return {"message": "Update was successful"}
+    return updated > 0
 
 
 
-def delete_contact(id):
+def delete_contact(contcat_id):
     conn = get_connection()
     cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM contacts WHERE id = %s", (id,))
+    cursor.execute("DELETE FROM contacts WHERE id = %s", (contcat_id,))
     conn.commit()
 
     cursor.close()
     conn.close()
 
     return {"message": "Delete was successful"}
-
 

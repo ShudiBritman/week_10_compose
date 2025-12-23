@@ -1,6 +1,7 @@
 from .data_interactor import *
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 import uvicorn
 
 
@@ -9,9 +10,13 @@ class Contact(BaseModel):
     last_name: str
     phone_number: str
 
-
+class UpdateContactRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
 
 app = FastAPI()
+
 
 @app.get("/contacts/")
 def get_contacts():
@@ -28,14 +33,24 @@ def create_contact_api(contact: Contact):
     return create_contact(dict_contact)
 
 
-@app.put("/contacts/{id}")
-def update_contact_api():
-    return update_contact(id)
+@app.put("/contacts/{contact_id}")
+def update_contact_api(contact_id: int, data: UpdateContactRequest):
+    updated = update_contact(
+        contact_id,
+        data.first_name,
+        data.last_name,
+        data.phone_number
+    )
+
+    if not updated:
+        raise HTTPException(status_code=404, detail="Contact not found")
+
+    return {"message": "Update was successful"}
 
 
-@app.delete("/contacts/{id}")
-def delete_contact_api():
-    delete_contact()
+@app.delete("/contacts/{contcat_id}")
+def delete_contact_api(contcat_id):
+    delete_contact(contcat_id)
     return "Deletion was successful"
 
 
