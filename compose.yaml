@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: contacts_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: contacts_db
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  api:
+    build: ./app
+    container_name: contacts_api
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: app_user
+      DB_PASSWORD: app_pass
+      DB_NAME: contacts_db
+    ports:
+      - "8000:80"
+
+volumes:
+  mysql_data:

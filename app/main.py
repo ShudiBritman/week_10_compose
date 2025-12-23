@@ -5,12 +5,12 @@ from typing import Optional
 import uvicorn
 
 
-class Contact(BaseModel):
+class ContactCreate(BaseModel):
     first_name: str
     last_name: str
     phone_number: str
 
-class UpdateContactRequest(BaseModel):
+class ContactUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone_number: Optional[str] = None
@@ -20,21 +20,22 @@ app = FastAPI()
 
 @app.get("/contacts/")
 def get_contacts():
-    return get_all_contacts()
+    contacts = get_all_contacts()
+    return contacts
 
 
 @app.post("/contacts/")
-def create_contact_api(contact: Contact):
-    dict_contact = {
-        "first_name": contact.first_name,
-        "last_name": contact.last_name,
-        "phone_number": contact.phone_number
-    }
-    return create_contact(dict_contact)
+def add_contact(contact: ContactCreate):
+    new_id = create_contact(
+        contact.first_name,
+        contact.last_name,
+        contact.phone_number
+    )
+    return {"message": "Contact created successfully", "id": new_id}
 
 
 @app.put("/contacts/{contact_id}")
-def update_contact_api(contact_id: int, data: UpdateContactRequest):
+def update_contact_api(contact_id: int, data: ContactUpdate):
     updated = update_contact(
         contact_id,
         data.first_name,
@@ -48,10 +49,12 @@ def update_contact_api(contact_id: int, data: UpdateContactRequest):
     return {"message": "Update was successful"}
 
 
-@app.delete("/contacts/{contcat_id}")
-def delete_contact_api(contcat_id):
-    delete_contact(contcat_id)
-    return "Deletion was successful"
+@app.delete("/contacts/{contact_id}")
+def delete_contact_api(contact_id: int):
+    success = delete_contact(contact_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    return {"message": "Contact deleted successfully"}
 
 
 if __name__ == "__main__":

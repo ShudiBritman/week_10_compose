@@ -2,28 +2,19 @@ from sql.connection import get_connection
 
 
 
-def create_contact(contact):
+def create_contact(first_name, last_name, phone_number):
     conn = get_connection()
     cursor = conn.cursor()
     query = """
         INSERT INTO contacts (first_name, last_name, phone_number)
         VALUES (%s, %s, %s)
     """
-    cursor.execute(
-        query,
-        (
-            contact["first_name"],
-            contact["last_name"],
-            contact["phone_number"]
-        )
-    )
+    cursor.execute(query, (first_name, last_name, phone_number))
     conn.commit()
+    new_id = cursor.lastrowid
     cursor.close()
     conn.close()
-    return {
-        "message": "add successful",
-        "id": cursor.lastrowid
-    }
+    return new_id
 
 
 def get_all_contacts():
@@ -73,14 +64,13 @@ def update_contact(contact_id, first_name=None, last_name=None, phone_number=Non
 
 
 
-def delete_contact(contcat_id):
+def delete_contact(contact_id):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM contacts WHERE id = %s", (contcat_id,))
+    cursor.execute("DELETE FROM contacts WHERE id=%s", (contact_id,))
     conn.commit()
-
+    deleted = cursor.rowcount > 0
     cursor.close()
     conn.close()
-
-    return {"message": "Delete was successful"}
+    return deleted
 
