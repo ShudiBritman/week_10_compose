@@ -2,32 +2,32 @@ services:
   db:
     image: mysql:8.0
     container_name: contacts_db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: contacts_db
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: app_pass
+      MYSQL_USER: sh
+      MYSQL_PASSWORD: 1234
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql:/docker-entrypoint-initdb.d
     ports:
-      - "3306:3306"
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api:
     build: ./app
     container_name: contacts_api
+    env_file:
+      - .env
     depends_on:
-      - db
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: app_user
-      DB_PASSWORD: app_pass
-      DB_NAME: contacts_db
+      db:
+        condition: service_healthy
     ports:
       - "8000:80"
 
 volumes:
   mysql_data:
-

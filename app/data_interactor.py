@@ -1,4 +1,4 @@
-from sql.connection import get_connection
+from db import get_connection
 
 
 

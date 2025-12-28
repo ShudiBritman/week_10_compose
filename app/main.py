@@ -1,4 +1,4 @@
-from .data_interactor import *
+from data_interactor import *
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
