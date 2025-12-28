@@ -2,6 +2,5 @@ project.md
 project_he.md
 __pycache__/
 *.pyc
-.env
 .idea/
 .vscode/
