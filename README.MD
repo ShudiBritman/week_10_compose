@@ -28,7 +28,7 @@ From the root directory of the project, run:
 
 ```bash
 docker compose up --build
-
+```
 This command will:
 
 Build the application image
@@ -38,9 +38,9 @@ Start the API service and the MySQL database
 Create and attach persistent volumes automatically
 
 Run in detached mode (optional)
-
+```
 docker compose up -d --build
-
+```
 Docker Compose Configuration
 
 All services (API server and MySQL database), including networking, environment variables, exposed ports, and volumes, are defined in the docker-compose.yml file.
